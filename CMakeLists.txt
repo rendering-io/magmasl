@@ -11,6 +11,9 @@ project(MyProject)
 option(BUILD_DOCS "Build documentation" ON)
 option(BUILD_TESTS "Build unit tests" ON)
 
+# Build the lib subdirectory.
+add_subdirectory(lib)
+
 # Optionally build documentation.
 if (BUILD_DOCS)
   add_subdirectory(doc)
