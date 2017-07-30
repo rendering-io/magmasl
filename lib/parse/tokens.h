@@ -1,0 +1,23 @@
+enum token {
+  TIDENTIFIER,
+  TDOUBLE,
+  TINTEGER,
+  TEQUAL,
+  TCEQ,
+  TCNE,
+  TCLT,
+  TCLE,
+  TCGT,
+  TCGE,
+  TLPAREN,
+  TRPAREN,
+  TLBRACE,
+  TRBRACE,
+  TDOT,
+  TCOMMA,
+  TPLUS,
+  TMINUS,
+  TMUL,
+  TDIV
+};
+

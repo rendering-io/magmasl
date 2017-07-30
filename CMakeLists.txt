@@ -12,6 +12,10 @@ option(BUILD_DOCS "Build documentation" ON)
 option(BUILD_EXAMPLES "Build examples" ON)
 option(BUILD_TESTS "Build unit tests" ON)
 
+# Use C++14
+add_compile_options(-std=c++14)
+include_directories(include)
+
 # Build the lib subdirectory.
 add_subdirectory(lib)
 add_subdirectory(tools)
