@@ -52,13 +52,14 @@ typedef magma::yacc::Parser::token_type token_type;
 /**
  * Define patterns. 
  */
-fn	"fn"
 identifier	[[:alpha:]][[:alnum:]]* 
-integer	[1-9][0-9]*
+lit_int		[1-9][0-9]*
+lit_float	[0-9]+"."[0-9]*
 lparen		"("
 rparen		")"
 lbrace 		"{"
 rbrace 		"}"
+sep_term 	";"
 
 %% /*** Regular Expressions Part ***/
 
@@ -71,7 +72,23 @@ rbrace 		"}"
  /*** BEGIN EXAMPLE - Change the example lexer rules below ***/
 
 fn {
-  return token::FN;
+  return token::kw_fn;
+}
+
+uniform {
+  return token::kw_uniform;
+}
+
+vector {
+  return token::kw_vector;
+}
+
+":" {
+  return token::sep_colon;
+}
+
+"=" {
+  return token::op_assign;
 }
 
 {lparen} {
@@ -86,19 +103,20 @@ fn {
 
 {lbrace} { return token::LBRACE; }
 {rbrace} { return token::RBRACE; }
+{sep_term} { return token::sep_term; }
 
 {identifier} {
-  return token::IDENTIFIER;
+  return token::identifier;
 }
 
-integer {
+{lit_int} {
   yylval->integerVal = atoi(yytext);
-  return token::INTEGER;
+  return token::lit_int;
 }
 
-[0-9]+"."[0-9]* {
+{lit_float} {
   yylval->doubleVal = atof(yytext);
-  return token::DOUBLE;
+  return token::lit_float;
 }
 
  /* gobble up white-spaces */

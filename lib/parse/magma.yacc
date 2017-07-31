@@ -68,8 +68,30 @@
 }
 
 %token			END	     0	"end of file"
-%token			IDENTIFIER	"identifier"
-%token			FN		"fn"
+%token			sep_colon	":"
+%token			sep_term	";"
+
+%token			identifier	"identifier"
+
+%token			kw_uniform	"uniform"
+%token			kw_vector	"vector"
+%token			kw_fn		"fn"
+%token			kw_vs		"vs"
+%token			kw_hs		"hs"
+%token			kw_ds		"ds"
+%token			kw_gs		"gs"
+%token			kw_fs		"fs"
+%token			kw_cs		"cs"
+
+%token			op_assign	"="
+%token			op_add		"+"
+%token			op_sub		"-"
+%token			op_mul		"*"
+%token			op_div		"/"
+
+%token			lit_int		"int-literal"
+%token			lit_float	"fp-literal"
+
 %token                  LPAREN		"("
 %token			RPAREN		")"
 %token			LBRACE		"{"
@@ -78,12 +100,9 @@
 %token <doubleVal> 	DOUBLE		"double"
 %token <stringVal> 	STRING		"string"
 
-%type <calcnode>	constant variable
-%type <calcnode>	atomexpr powexpr unaryexpr mulexpr addexpr expr
 
 %destructor { delete $$; } STRING
 %destructor { delete $$; } constant variable
-%destructor { delete $$; } atomexpr powexpr unaryexpr mulexpr addexpr expr
 
  /*** END EXAMPLE - Change the example grammar's tokens above ***/
 
@@ -104,7 +123,23 @@
 
  /*** BEGIN EXAMPLE - Change the example grammar rules below ***/
 
-function : FN IDENTIFIER LPAREN RPAREN LBRACE RBRACE
+literal: lit_int
+       | lit_float
+
+expr: literal 
+
+kw_decl: kw_uniform
+       | kw_vector
+
+vardecl : kw_decl identifier sep_colon identifier op_assign expr 
+
+statement : sep_term 
+          | vardecl sep_term
+
+statement_list : /* empty */
+               | statement statement_list
+
+function : kw_fn identifier LPAREN RPAREN LBRACE statement_list RBRACE
 
 globaldecl : function
 
