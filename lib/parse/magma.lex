@@ -49,46 +49,76 @@ typedef magma::yacc::Parser::token_type token_type;
 #define YY_USER_ACTION  yylloc->columns(yyleng);
 %}
 
+/**
+ * Define patterns. 
+ */
+fn	"fn"
+identifier	[[:alpha:]][[:alnum:]]* 
+integer	[1-9][0-9]*
+lparen		"("
+rparen		")"
+lbrace 		"{"
+rbrace 		"}"
+
 %% /*** Regular Expressions Part ***/
 
  /* code to place at the beginning of yylex() */
 %{
-    // reset location
-    yylloc->step();
+  // reset location
+  yylloc->step();
 %}
 
  /*** BEGIN EXAMPLE - Change the example lexer rules below ***/
 
-[0-9]+ {
-    yylval->integerVal = atoi(yytext);
-    return token::INTEGER;
+fn {
+  return token::FN;
+}
+
+{lparen} {
+  std::cerr << "Tok: (" << std::endl;
+  return token::LPAREN;
+}
+
+{rparen} {
+  std::cerr << "Tok: (" << std::endl;
+  return token::RPAREN;
+}
+
+{lbrace} { return token::LBRACE; }
+{rbrace} { return token::RBRACE; }
+
+{identifier} {
+  return token::IDENTIFIER;
+}
+
+integer {
+  yylval->integerVal = atoi(yytext);
+  return token::INTEGER;
 }
 
 [0-9]+"."[0-9]* {
-    yylval->doubleVal = atof(yytext);
-    return token::DOUBLE;
-}
-
-[A-Za-z][A-Za-z0-9_,.-]* {
-    yylval->stringVal = new std::string(yytext, yyleng);
-    return token::STRING;
+  yylval->doubleVal = atof(yytext);
+  return token::DOUBLE;
 }
 
  /* gobble up white-spaces */
 [ \t\r]+ {
-    yylloc->step();
+  yylloc->step();
 }
 
  /* gobble up end-of-lines */
 \n {
-    yylloc->lines(yyleng); yylloc->step();
-    return token::EOL;
+  yylloc->lines(yyleng); yylloc->step();
 }
 
  /* pass all other characters up to bison */
-. {
-    return static_cast<token_type>(*yytext);
+ /* . {
+  std::cerr << "Unhandled token: " << std::string(yytext, yyleng)
+            << std::endl;
+  //std::terminate(-1);
+  return static_cast<token_type>(*yytext);
 }
+*/
 
  /*** END EXAMPLE - Change the example lexer rules above ***/
 
@@ -96,18 +126,13 @@ typedef magma::yacc::Parser::token_type token_type;
 
 namespace example {
 
-Scanner::Scanner(std::istream* in,
-		 std::ostream* out)
-    : ExampleFlexLexer(in, out)
-{
+Scanner::Scanner(std::istream* in, std::ostream* out)
+  : ExampleFlexLexer(in, out) {
 }
 
-Scanner::~Scanner()
-{
-}
+Scanner::~Scanner() { }
 
-void Scanner::set_debug(bool b)
-{
+void Scanner::set_debug(bool b) {
     yy_flex_debug = b;
 }
 
@@ -133,7 +158,6 @@ int ExampleFlexLexer::yylex()
  * another input file, and scanning continues. If it returns true (non-zero),
  * then the scanner terminates, returning 0 to its caller. */
 
-int ExampleFlexLexer::yywrap()
-{
+int ExampleFlexLexer::yywrap() {
     return 1;
 }

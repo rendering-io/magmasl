@@ -22,8 +22,8 @@
  * versions. */
 %debug
 
-/* start symbol is named "start" */
-%start start
+/* start symbol is named "module" */
+%start module
 
 /* write out a header file containing the token defines */
 %defines
@@ -40,6 +40,10 @@
 
 /* keep track of the current position within the input */
 %locations
+
+/**
+ * Run before parsing starts.
+ */
 %initial-action
 {
   // initialize the initial location object
@@ -64,7 +68,12 @@
 }
 
 %token			END	     0	"end of file"
-%token			EOL		"end of line"
+%token			IDENTIFIER	"identifier"
+%token			FN		"fn"
+%token                  LPAREN		"("
+%token			RPAREN		")"
+%token			LBRACE		"{"
+%token			RBRACE		"}"
 %token <integerVal> 	INTEGER		"integer"
 %token <doubleVal> 	DOUBLE		"double"
 %token <stringVal> 	STRING		"string"
@@ -95,134 +104,23 @@
 
  /*** BEGIN EXAMPLE - Change the example grammar rules below ***/
 
-constant : INTEGER
-           {
-	       $$ = new CNConstant($1);
-	   }
-         | DOUBLE
-           {
-	       $$ = new CNConstant($1);
-	   }
+function : FN IDENTIFIER LPAREN RPAREN LBRACE RBRACE
 
-variable : STRING
-           {
-	       //if (!driver.calc.existsVariable(*$1)) {
-		//   error(yyla.location, std::string("Unknown variable \"") + *$1 + "\"");
-		//   delete $1;
-		//   YYERROR;
-	       //}
-	       //else {
-		   $$ = new CNConstant(9991/* driver.calc.getVariable(*$1)*/ );
-		   delete $1;
-	       //}
-	   }
+globaldecl : function
 
-atomexpr : constant
-           {
-	       $$ = $1;
-	   }
-         | variable
-           {
-	       $$ = $1;
-	   }
-         | '(' expr ')'
-           {
-	       $$ = $2;
-	   }
+globaldecls : globaldecl 
+            | globaldecl globaldecls
 
-powexpr	: atomexpr
-          {
-	      $$ = $1;
-	  }
-        | atomexpr '^' powexpr
-          {
-	      $$ = new CNPower($1, $3);
-	  }
-
-unaryexpr : powexpr
-            {
-		$$ = $1;
-	    }
-          | '+' powexpr
-            {
-		$$ = $2;
-	    }
-          | '-' powexpr
-            {
-		$$ = new CNNegate($2);
-	    }
-
-mulexpr : unaryexpr
-          {
-	      $$ = $1;
-	  }
-        | mulexpr '*' unaryexpr
-          {
-	      $$ = new CNMultiply($1, $3);
-	  }
-        | mulexpr '/' unaryexpr
-          {
-	      $$ = new CNDivide($1, $3);
-	  }
-        | mulexpr '%' unaryexpr
-          {
-	      $$ = new CNModulo($1, $3);
-	  }
-
-addexpr : mulexpr
-          {
-	      $$ = $1;
-	  }
-        | addexpr '+' mulexpr
-          {
-	      $$ = new CNAdd($1, $3);
-	  }
-        | addexpr '-' mulexpr
-          {
-	      $$ = new CNSubtract($1, $3);
-	  }
-
-expr	: addexpr
-          {
-	      $$ = $1;
-	  }
-
-assignment : STRING '=' expr
-             {
-		// driver.calc.variables[*$1] = $3->evaluate();
-		// std::cout << "Setting variable " << *$1
-		//	   << " = " << driver.calc.variables[*$1] << "\n";
-		 delete $1;
-		 delete $3;
-	     }
-
-start	: /* empty */
-        | start ';'
-        | start EOL
-	| start assignment ';'
-	| start assignment EOL
-	| start assignment END
-        | start expr ';'
-          {
-	      // driver.calc.expressions.push_back($2);
-	  }
-        | start expr EOL
-          {
-	      //driver.calc.expressions.push_back($2);
-	  }
-        | start expr END
-          {
-	      //driver.calc.expressions.push_back($2);
-	  }
+module	: /* empty */ END
+        | globaldecls 
 
  /*** END EXAMPLE - Change the example grammar rules above ***/
 
 %% /*** Additional Code ***/
 
-void magma::yacc::Parser::error(const Parser::location_type& l,
-			    const std::string& m)
-{
-    driver.error(l, m);
+void magma::yacc::Parser::error(const Parser::location_type &l,
+                                const std::string &m) {
+  driver.error(l, m);
 }
 
 int magma::parse::parser::parse(const char* path) {
