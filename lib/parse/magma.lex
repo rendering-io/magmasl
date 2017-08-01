@@ -91,14 +91,22 @@ vector {
   return token::op_assign;
 }
 
+"+" {
+  return token::op_add;
+}
+
+"-" {
+  return token::op_sub;
+}
+
 {lparen} {
   std::cerr << "Tok: (" << std::endl;
-  return token::LPAREN;
+  return token::lparen;
 }
 
 {rparen} {
   std::cerr << "Tok: (" << std::endl;
-  return token::RPAREN;
+  return token::rparen;
 }
 
 {lbrace} { return token::LBRACE; }

@@ -92,8 +92,8 @@
 %token			lit_int		"int-literal"
 %token			lit_float	"fp-literal"
 
-%token                  LPAREN		"("
-%token			RPAREN		")"
+%token                  lparen		"("
+%token			rparen		")"
 %token			LBRACE		"{"
 %token			RBRACE		"}"
 %token <integerVal> 	INTEGER		"integer"
@@ -102,7 +102,7 @@
 
 
 %destructor { delete $$; } STRING
-%destructor { delete $$; } constant variable
+ /* %destructor { delete $$; } constant variable */
 
  /*** END EXAMPLE - Change the example grammar's tokens above ***/
 
@@ -126,7 +126,21 @@
 literal: lit_int
        | lit_float
 
-expr: literal 
+variable: identifier
+	| literal
+
+expr: variable
+    | binary_expr
+    | call_expr
+
+binary_op: op_add
+         | op_sub
+         | op_mul
+         | op_div
+
+binary_expr: expr binary_op expr
+
+call_expr: identifier lparen rparen
 
 kw_decl: kw_uniform
        | kw_vector
@@ -139,7 +153,7 @@ statement : sep_term
 statement_list : /* empty */
                | statement statement_list
 
-function : kw_fn identifier LPAREN RPAREN LBRACE statement_list RBRACE
+function : kw_fn identifier lparen rparen LBRACE statement_list RBRACE
 
 globaldecl : function
 
