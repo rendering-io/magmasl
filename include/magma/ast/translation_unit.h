@@ -8,6 +8,9 @@ namespace magma { namespace ast {
 /// AST node representing a complete translation unit.
 class translation_unit : public node {
 public:
+  static auto create() -> std::unique_ptr<translation_unit>;
+
+  void accept(visitor &) override;
 };
 
 }}

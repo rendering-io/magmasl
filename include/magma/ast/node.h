@@ -1,6 +1,8 @@
 #ifndef MAGMA_AST_NODE_H
 #define MAGMA_AST_NODE_H
 
+#include <memory>
+
 namespace magma { namespace ast {
 
 class visitor;

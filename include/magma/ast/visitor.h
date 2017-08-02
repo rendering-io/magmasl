@@ -3,9 +3,12 @@
 
 namespace magma { namespace ast {
 
+class translation_unit;
+
 /// Base class for AST visitors.
 class visitor {
 public:
+  virtual void visit(translation_unit &) = 0;
 };
 
 }}
