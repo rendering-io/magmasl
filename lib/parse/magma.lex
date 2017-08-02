@@ -53,7 +53,7 @@ typedef magma::yacc::Parser::token_type token_type;
  * Define patterns. 
  */
 identifier	[[:alpha:]][[:alnum:]]* 
-lit_int		[1-9][0-9]*
+lit_int		0|[1-9][0-9]*
 lit_float	[0-9]+"."[0-9]*
 lparen		"("
 rparen		")"
@@ -87,6 +87,10 @@ vector {
   return token::sep_colon;
 }
 
+"," {
+  return token::sep_comma;
+}
+
 "=" {
   return token::op_assign;
 }
@@ -118,12 +122,10 @@ vector {
 }
 
 {lit_int} {
-  yylval->integerVal = atoi(yytext);
   return token::lit_int;
 }
 
 {lit_float} {
-  yylval->doubleVal = atof(yytext);
   return token::lit_float;
 }
 

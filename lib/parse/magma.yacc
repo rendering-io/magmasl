@@ -10,7 +10,10 @@
 
 #include "expression.h"
 
+#include <magma/ast/translation_unit.h>
 #include <magma/parse/parser.h>
+
+using translation_unit_ptr = std::unique_ptr<magma::ast::translation_unit>;
 %}
 
 /*** yacc/bison Declarations ***/
@@ -38,6 +41,9 @@
 %define "parser_class_name" "Parser"
 %define api.namespace {magma::yacc}
 
+/* Use C++ variant support, enabling nodes to use raw C++ types. */
+%define api.value.type variant
+
 /* keep track of the current position within the input */
 %locations
 
@@ -60,16 +66,10 @@
 
  /*** BEGIN EXAMPLE - Change the example grammar's tokens below ***/
 
-%union {
-    int  			integerVal;
-    double 			doubleVal;
-    std::string*		stringVal;
-    class CalcNode*		calcnode;
-}
-
 %token			END	     0	"end of file"
 %token			sep_colon	":"
 %token			sep_term	";"
+%token			sep_comma	","
 
 %token			identifier	"identifier"
 
@@ -96,13 +96,10 @@
 %token			rparen		")"
 %token			LBRACE		"{"
 %token			RBRACE		"}"
-%token <integerVal> 	INTEGER		"integer"
-%token <doubleVal> 	DOUBLE		"double"
-%token <stringVal> 	STRING		"string"
+%token  	INTEGER		"integer"
+%token  	DOUBLE		"double"
+%token  	STRING		"string"
 
-
-%destructor { delete $$; } STRING
- /* %destructor { delete $$; } constant variable */
 
  /*** END EXAMPLE - Change the example grammar's tokens above ***/
 
@@ -140,7 +137,11 @@ binary_op: op_add
 
 binary_expr: expr binary_op expr
 
+expr_list: expr
+         | expr sep_comma expr_list
+
 call_expr: identifier lparen rparen
+         | identifier lparen expr_list rparen
 
 kw_decl: kw_uniform
        | kw_vector
@@ -160,7 +161,7 @@ globaldecl : function
 globaldecls : globaldecl 
             | globaldecl globaldecls
 
-module	: /* empty */ END
+module	: /* empty */ END 
         | globaldecls 
 
  /*** END EXAMPLE - Change the example grammar rules above ***/
