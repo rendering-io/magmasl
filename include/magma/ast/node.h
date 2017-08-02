@@ -7,7 +7,11 @@ class visitor;
 
 /// Base class for AST nodes.
 class node {
+protected:
+  node();
+
 public:
+  virtual ~node();
   virtual void accept(visitor &) = 0;
 };
 

@@ -2,6 +2,12 @@
 
 namespace magma { namespace ast {
 
+node::node() {
+}
+
+node::~node() {
+}
+
 }}
 
 
